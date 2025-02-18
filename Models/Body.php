@@ -103,6 +103,28 @@ class Body {
             return false;
         }
     }
+    public function getUnclaimedBodies() {
+      $query = "SELECT 
+                  b.body_id,
+                  l.location_desc,
+                  g.gender_desc,
+                  b.desc_text
+                FROM bodies b
+                LEFT JOIN location l ON b.place_found = l.location_id
+                LEFT JOIN gender g ON b.gender = g.gender_id
+                WHERE b.isclaimed = FALSE
+                ORDER BY b.created_on DESC";
+  
+      try {
+          $stmt = $this->conn->prepare($query);
+          $stmt->execute();
+          return $stmt->fetchAll(PDO::FETCH_ASSOC);
+      } catch (PDOException $e) {
+          error_log("Error fetching unclaimed bodies: " . $e->getMessage());
+          return [];
+      }
+  }
+  
 
    private function changeClaim($b_id) {
       $query = "UPDATE bodies
